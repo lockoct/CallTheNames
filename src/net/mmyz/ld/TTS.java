@@ -17,7 +17,7 @@ public class TTS {
 			Dispatch.call(sapo, "Speak", new Variant(name));
 
 		} catch (Exception e) {
-			e.printStackTrace();
+			e.printStackTrace();		
 		} finally { 
 			sapo.safeRelease();
 			sap.safeRelease();

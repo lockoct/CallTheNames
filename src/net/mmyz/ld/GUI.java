@@ -59,6 +59,7 @@ public class GUI extends JFrame {
 		EventQueue.invokeLater(new Runnable() {
 			public void run() {
 				try {
+					ReleaseDll.start();
 					UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 					GUI frame = new GUI();
 					frame.setVisible(true);
