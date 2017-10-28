@@ -123,6 +123,7 @@ public class GUI extends JFrame {
 					for (int i = 0; i < NamesTable.getRowCount(); i++) {
 						if (absentName == NamesTable.getValueAt(i, 0)) {
 							NamesTable.setValueAt("缺席", i, 1);
+							//当表格数据不为最后一个时,点击按钮后标签数据自动改变为下一个数据
 							if (i != NamesTable.getRowCount() - 1) {
 								String nextName = (String) NamesTable.getValueAt(i + 1, 0);
 								NameLabel.setText(nextName);
@@ -149,6 +150,7 @@ public class GUI extends JFrame {
 					for (int i = 0; i < NamesTable.getRowCount(); i++) {
 						if (leaveName == NamesTable.getValueAt(i, 0) ) {
 							NamesTable.setValueAt("请假", i, 1);
+							//当表格数据不为最后一个时,点击按钮后标签数据自动改变为下一个数据
 							if (i != NamesTable.getRowCount() - 1) {
 								String nextName = (String) NamesTable.getValueAt(i + 1, 0);
 								NameLabel.setText(nextName);
