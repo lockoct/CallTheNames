@@ -11,24 +11,25 @@ import jxl.read.biff.BiffException;
 public class ImportData {
 	String path;
 	String[][] names;
+
 	public ImportData(String path) {
 		this.path = path.replace("\\", "\\\\");
 	}
-	
-	public String[][] process(){
+
+	public String[][] process() {
 		try {
 			FileInputStream fis = new FileInputStream(this.path);
-			
-			//获取Excel中的数据
+
+			// 获取Excel中的数据
 			Workbook workBook = Workbook.getWorkbook(fis);
 			Sheet sheet = workBook.getSheet(0);
-			//names数组存放名字
-			this.names = new String[72][2];
-			//开始导入信息
+
+			this.names = new String[sheet.getRows()][2];
+			// 开始导入信息
 			for (int i = 0; i < 2; i++) {
-				for(int j = 0; j < 72; j++) {
-					//将单元格数据输入数组中
-					names[j][i] = sheet.getCell(i,j).getContents();
+				for (int j = 0; j < sheet.getRows(); j++) {
+					// 将单元格数据输入数组中
+					names[j][i] = sheet.getCell(i, j).getContents();
 				}
 			}
 		} catch (FileNotFoundException e) {

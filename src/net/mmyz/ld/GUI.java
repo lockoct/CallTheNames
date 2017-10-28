@@ -95,10 +95,11 @@ public class GUI extends JFrame {
 		Present.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
+
 				if (NameLabel.getText() != "请开始点名") {
 					String presentName = NameLabel.getText();
-					for (int i = 0; i < 72; i++) {
-						if (presentName == NamesTable.getValueAt(i, 0) & i != 71) {
+					for (int i = 0; i < NamesTable.getRowCount(); i++) {
+						if (presentName == NamesTable.getValueAt(i, 0) & i != NamesTable.getRowCount() - 1) {
 							String nextName = (String) NamesTable.getValueAt(i + 1, 0);
 							NameLabel.setText(nextName);
 							tts.speak(nextName);
@@ -119,13 +120,17 @@ public class GUI extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (NameLabel.getText() != "请开始点名") {
 					String absentName = NameLabel.getText();
-					for (int i = 0; i < 72; i++) {
-						if (absentName == NamesTable.getValueAt(i, 0) & i != 71) {
+					for (int i = 0; i < NamesTable.getRowCount(); i++) {
+						if (absentName == NamesTable.getValueAt(i, 0)) {
 							NamesTable.setValueAt("缺席", i, 1);
-							String nextName = (String) NamesTable.getValueAt(i + 1, 0);
-							NameLabel.setText(nextName);
-							tts.speak(nextName);
-							break;
+							if (i != NamesTable.getRowCount() - 1) {
+								String nextName = (String) NamesTable.getValueAt(i + 1, 0);
+								NameLabel.setText(nextName);
+								tts.speak(nextName);
+								break;								
+							}else {
+								break;
+							}
 						}
 					}
 				}
@@ -141,13 +146,17 @@ public class GUI extends JFrame {
 			public void mouseClicked(MouseEvent e) {
 				if (NameLabel.getText() != "请开始点名") {
 					String leaveName = NameLabel.getText();
-					for (int i = 0; i < 72; i++) {
-						if (leaveName == NamesTable.getValueAt(i, 0) & i != 71) {
+					for (int i = 0; i < NamesTable.getRowCount(); i++) {
+						if (leaveName == NamesTable.getValueAt(i, 0) ) {
 							NamesTable.setValueAt("请假", i, 1);
-							String nextName = (String) NamesTable.getValueAt(i + 1, 0);
-							NameLabel.setText(nextName);
-							tts.speak(nextName);
-							break;
+							if (i != NamesTable.getRowCount() - 1) {
+								String nextName = (String) NamesTable.getValueAt(i + 1, 0);
+								NameLabel.setText(nextName);
+								tts.speak(nextName);
+								break;								
+							}else {
+								break;
+							}
 						}
 					}
 				}
