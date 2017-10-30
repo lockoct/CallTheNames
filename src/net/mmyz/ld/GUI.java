@@ -367,6 +367,12 @@ public class GUI extends JFrame {
 		mnNewMenu.add(Import);
 
 		JMenuItem Exit = new JMenuItem("\u9000\u51FA");
+		Exit.addActionListener(new ActionListener() {
+			//ÍË³ö
+			public void actionPerformed(ActionEvent e) {
+				System.exit(0);
+			}
+		});
 		mnNewMenu.add(Exit);
 	}
 }
