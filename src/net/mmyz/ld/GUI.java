@@ -319,7 +319,8 @@ public class GUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 				if (NameLabel.getText() != "请开始点名") {
-					tts.speak(NameLabel.getText());
+					
+					TTSThread(NameLabel.getText());
 				}
 			}
 		});
