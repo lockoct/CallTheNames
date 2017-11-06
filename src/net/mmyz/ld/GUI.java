@@ -103,7 +103,6 @@ public class GUI extends JFrame {
 						if (presentName == NamesTable.getValueAt(i, 0) & i != NamesTable.getRowCount() - 1) {
 							nextName = (String) NamesTable.getValueAt(i + 1, 0);
 							NameLabel.setText(nextName);
-//							tts.speak(nextName);
 							TTSThread(nextName);
 							break;
 						}
@@ -128,7 +127,6 @@ public class GUI extends JFrame {
 							if (i != NamesTable.getRowCount() - 1) {
 								nextName = (String) NamesTable.getValueAt(i + 1, 0);
 								NameLabel.setText(nextName);
-//								tts.speak(nextName);
 								TTSThread(nextName);
 								break;								
 							}else {
@@ -155,7 +153,6 @@ public class GUI extends JFrame {
 							if (i != NamesTable.getRowCount() - 1) {
 								nextName = (String) NamesTable.getValueAt(i + 1, 0);
 								NameLabel.setText(nextName);
-//								tts.speak(nextName);
 								TTSThread(nextName);
 								break;								
 							}else {
