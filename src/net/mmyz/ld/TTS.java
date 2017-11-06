@@ -3,7 +3,9 @@ package net.mmyz.ld;
 import com.jacob.activeX.ActiveXComponent;
 import com.jacob.com.Dispatch;
 import com.jacob.com.Variant;
-
+/*
+ *TTS∑¢“Ù
+ */
 public class TTS {
 	public void speak(String name) {
 		ActiveXComponent sap = new ActiveXComponent("Sapi.SpVoice");

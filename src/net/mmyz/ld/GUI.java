@@ -32,11 +32,11 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import javax.swing.ListSelectionModel;
 
+/*
+ *点名工具界面 
+ */
 public class GUI extends JFrame {
 
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JTable NamesTable;
@@ -51,6 +51,7 @@ public class GUI extends JFrame {
 	private JButton SetLeave;
 	private int selectedRow;
 	private TTS tts = new TTS();
+	private String nextName;
 
 	/**
 	 * Launch the application.
@@ -100,9 +101,10 @@ public class GUI extends JFrame {
 					String presentName = NameLabel.getText();
 					for (int i = 0; i < NamesTable.getRowCount(); i++) {
 						if (presentName == NamesTable.getValueAt(i, 0) & i != NamesTable.getRowCount() - 1) {
-							String nextName = (String) NamesTable.getValueAt(i + 1, 0);
+							nextName = (String) NamesTable.getValueAt(i + 1, 0);
 							NameLabel.setText(nextName);
-							tts.speak(nextName);
+//							tts.speak(nextName);
+							TTSThread(nextName);
 							break;
 						}
 					}
@@ -124,9 +126,10 @@ public class GUI extends JFrame {
 						if (absentName == NamesTable.getValueAt(i, 0)) {
 							NamesTable.setValueAt("缺席", i, 1);
 							if (i != NamesTable.getRowCount() - 1) {
-								String nextName = (String) NamesTable.getValueAt(i + 1, 0);
+								nextName = (String) NamesTable.getValueAt(i + 1, 0);
 								NameLabel.setText(nextName);
-								tts.speak(nextName);
+//								tts.speak(nextName);
+								TTSThread(nextName);
 								break;								
 							}else {
 								break;
@@ -150,9 +153,10 @@ public class GUI extends JFrame {
 						if (leaveName == NamesTable.getValueAt(i, 0) ) {
 							NamesTable.setValueAt("请假", i, 1);
 							if (i != NamesTable.getRowCount() - 1) {
-								String nextName = (String) NamesTable.getValueAt(i + 1, 0);
+								nextName = (String) NamesTable.getValueAt(i + 1, 0);
 								NameLabel.setText(nextName);
-								tts.speak(nextName);
+//								tts.speak(nextName);
+								TTSThread(nextName);
 								break;								
 							}else {
 								break;
@@ -374,5 +378,17 @@ public class GUI extends JFrame {
 			}
 		});
 		mnNewMenu.add(Exit);
+	}
+	private void TTSThread(String nextName) {
+		String ntn =nextName;
+		new SwingWorkerTTS(ntn) {
+			
+			@Override
+			protected Void doInBackground() throws Exception {
+				tts.speak(this.text);
+				return null;
+			}
+			
+		}.execute();;
 	}
 }

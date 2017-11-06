@@ -6,8 +6,11 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
+/*
+ *释放TTS所需要调用的dll文件 
+ */
 public class ReleaseDll {
-
+	
 	public static void start() {
 		try {
 			File fX86 = new File(System.getProperty("java.home")+"\\bin\\jacob-1.18-M3-x86.dll");

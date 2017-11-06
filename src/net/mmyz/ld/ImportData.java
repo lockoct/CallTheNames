@@ -7,7 +7,9 @@ import java.io.IOException;
 import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
-
+/*
+ *处理Excel表格
+ */
 public class ImportData {
 	String path;
 	String[][] names;
