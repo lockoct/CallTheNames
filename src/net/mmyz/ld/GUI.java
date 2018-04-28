@@ -18,6 +18,7 @@ import javax.swing.LayoutStyle.ComponentPlacement;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
 import javax.swing.border.LineBorder;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.table.DefaultTableModel;
 
 import java.awt.Color;
@@ -27,13 +28,16 @@ import javax.swing.JTable;
 import javax.swing.JScrollPane;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
 import javax.swing.JMenu;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
+import java.util.ArrayList;
 import javax.swing.ListSelectionModel;
 
 /*
- *µ„√˚π§æﬂΩÁ√Ê 
+ *ÁÇπÂêçÂ∑•ÂÖ∑ÁïåÈù¢ 
  */
 public class GUI extends JFrame {
 
@@ -52,6 +56,9 @@ public class GUI extends JFrame {
 	private int selectedRow;
 	private TTS tts = new TTS();
 	private String nextName;
+	private JMenuItem Export;
+	private JButton SetSilent;
+	private boolean isTTSOpen = false;
 
 	/**
 	 * Launch the application.
@@ -97,14 +104,17 @@ public class GUI extends JFrame {
 			@Override
 			public void mouseClicked(MouseEvent e) {
 
-				if (NameLabel.getText() != "«Îø™ ºµ„√˚") {
+				if (NameLabel.getText() != "ËØ∑ÂºÄÂßãÁÇπÂêç") {
 					String presentName = NameLabel.getText();
 					for (int i = 0; i < NamesTable.getRowCount(); i++) {
 						if (presentName == NamesTable.getValueAt(i, 0) & i != NamesTable.getRowCount() - 1) {
 							nextName = (String) NamesTable.getValueAt(i + 1, 0);
 							NameLabel.setText(nextName);
+							NamesTable.changeSelection(i, 1, false, false);
 							
-							TTSThread(nextName);
+							if (isTTSOpen) {
+								TTSThread(nextName);
+							}
 							break;
 						}
 					}
@@ -112,26 +122,29 @@ public class GUI extends JFrame {
 			}
 		});
 		Present.setForeground(Color.GREEN);
-		Present.setFont(new Font("ÀŒÃÂ", Font.BOLD, 15));
+		Present.setFont(new Font("ÂÆã‰Ωì", Font.BOLD, 15));
 
 		Absent = new JButton("\u00D7");
 		Absent.setEnabled(false);
 		Absent.addMouseListener(new MouseAdapter() {
-			// µ„ª˜∫ÛÀµ√˜∏√Õ¨—ß»±œØ
+			// ÁÇπÂáªÂêéËØ¥ÊòéËØ•ÂêåÂ≠¶Áº∫Â∏≠
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (NameLabel.getText() != "«Îø™ ºµ„√˚") {
+				if (NameLabel.getText() != "ËØ∑ÂºÄÂßãÁÇπÂêç") {
 					String absentName = NameLabel.getText();
 					for (int i = 0; i < NamesTable.getRowCount(); i++) {
 						if (absentName == NamesTable.getValueAt(i, 0)) {
-							NamesTable.setValueAt("»±œØ", i, 1);
+							NamesTable.setValueAt("Áº∫Â∏≠", i, 1);
 							if (i != NamesTable.getRowCount() - 1) {
 								nextName = (String) NamesTable.getValueAt(i + 1, 0);
 								NameLabel.setText(nextName);
+								NamesTable.changeSelection(i, 1, false, false);
 								
-								TTSThread(nextName);
-								break;								
-							}else {
+								if (isTTSOpen) {
+									TTSThread(nextName);
+								}
+								break;
+							} else {
 								break;
 							}
 						}
@@ -139,7 +152,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		Absent.setFont(new Font("ÀŒÃÂ", Font.BOLD, 15));
+		Absent.setFont(new Font("ÂÆã‰Ωì", Font.BOLD, 15));
 		Absent.setForeground(Color.RED);
 
 		Leave = new JButton("\u8BF7\u5047");
@@ -147,18 +160,21 @@ public class GUI extends JFrame {
 		Leave.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (NameLabel.getText() != "«Îø™ ºµ„√˚") {
+				if (NameLabel.getText() != "ËØ∑ÂºÄÂßãÁÇπÂêç") {
 					String leaveName = NameLabel.getText();
 					for (int i = 0; i < NamesTable.getRowCount(); i++) {
-						if (leaveName == NamesTable.getValueAt(i, 0) ) {
-							NamesTable.setValueAt("«ÎºŸ", i, 1);
+						if (leaveName == NamesTable.getValueAt(i, 0)) {
+							NamesTable.setValueAt("ËØ∑ÂÅá", i, 1);
 							if (i != NamesTable.getRowCount() - 1) {
 								nextName = (String) NamesTable.getValueAt(i + 1, 0);
 								NameLabel.setText(nextName);
-								
-								TTSThread(nextName);
-								break;								
-							}else {
+								NamesTable.changeSelection(i, 1, false, false);
+
+								if (isTTSOpen) {
+									TTSThread(nextName);
+								}
+								break;
+							} else {
 								break;
 							}
 						}
@@ -166,7 +182,7 @@ public class GUI extends JFrame {
 				}
 			}
 		});
-		Leave.setFont(new Font("ÀŒÃÂ", Font.PLAIN, 20));
+		Leave.setFont(new Font("ÂÆã‰Ωì", Font.PLAIN, 20));
 
 		SetLeave = new JButton("\u8BBE\u7F6E\u4E3A\u8BF7\u5047");
 		SetLeave.addActionListener(new ActionListener() {
@@ -176,113 +192,137 @@ public class GUI extends JFrame {
 
 		SetLeave.addMouseListener(new MouseAdapter() {
 			@Override
-			// …Ë÷√Œ™«ÎºŸ
+			// ËÆæÁΩÆ‰∏∫ËØ∑ÂÅá
 			public void mouseClicked(MouseEvent e) {
 				if (NamesTable.getValueAt(selectedRow, 1) != null) {
-					NamesTable.setValueAt("«ÎºŸ", selectedRow, 1);
+					NamesTable.setValueAt("ËØ∑ÂÅá", selectedRow, 1);
 				}
 			}
 		});
 
 		SetLeave.setEnabled(false);
-		SetLeave.setFont(new Font("ÀŒÃÂ", Font.PLAIN, 20));
+		SetLeave.setFont(new Font("ÂÆã‰Ωì", Font.PLAIN, 20));
 
 		SetAbsent = new JButton("\u8BBE\u7F6E\u4E3A\u7F3A\u5E2D");
 		SetAbsent.addMouseListener(new MouseAdapter() {
 			@Override
-			// …Ë÷√Œ™»±œØ
+			// ËÆæÁΩÆ‰∏∫Áº∫Â∏≠
 			public void mouseClicked(MouseEvent e) {
 				if (NamesTable.getValueAt(selectedRow, 1) != null) {
-					NamesTable.setValueAt("»±œØ", selectedRow, 1);
+					NamesTable.setValueAt("Áº∫Â∏≠", selectedRow, 1);
 				}
 			}
 		});
 		SetAbsent.setEnabled(false);
-		SetAbsent.setFont(new Font("ÀŒÃÂ", Font.PLAIN, 20));
+		SetAbsent.setFont(new Font("ÂÆã‰Ωì", Font.PLAIN, 20));
 
 		RemoveLeave = new JButton("\u53D6\u6D88\u8BF7\u5047");
 		RemoveLeave.addMouseListener(new MouseAdapter() {
 			@Override
-			// …Ë÷√Œ™»°œ˚«ÎºŸ
+			// ËÆæÁΩÆ‰∏∫ÂèñÊ∂àËØ∑ÂÅá
 			public void mouseClicked(MouseEvent e) {
-				if (NamesTable.getValueAt(selectedRow, 1) == "«ÎºŸ") {
+				if (NamesTable.getValueAt(selectedRow, 1) == "ËØ∑ÂÅá") {
 					NamesTable.setValueAt("", selectedRow, 1);
 				}
 			}
 		});
 		RemoveLeave.setEnabled(false);
-		RemoveLeave.setFont(new Font("ÀŒÃÂ", Font.PLAIN, 20));
+		RemoveLeave.setFont(new Font("ÂÆã‰Ωì", Font.PLAIN, 20));
 
 		RemoveAbsent = new JButton("\u53D6\u6D88\u7F3A\u5E2D");
 		RemoveAbsent.addMouseListener(new MouseAdapter() {
 			@Override
-			// …Ë÷√Œ™»°œ˚»±œØ
+			// ËÆæÁΩÆ‰∏∫ÂèñÊ∂àÁº∫Â∏≠
 			public void mouseClicked(MouseEvent e) {
-				if (NamesTable.getValueAt(selectedRow, 1) == "»±œØ") {
+				if (NamesTable.getValueAt(selectedRow, 1) == "Áº∫Â∏≠") {
 					NamesTable.setValueAt("", selectedRow, 1);
 				}
 			}
 		});
 		RemoveAbsent.setEnabled(false);
-		RemoveAbsent.setFont(new Font("ÀŒÃÂ", Font.PLAIN, 20));
+		RemoveAbsent.setFont(new Font("ÂÆã‰Ωì", Font.PLAIN, 20));
 
 		JScrollPane scrollPane = new JScrollPane();
+
+		SetSilent = new JButton("ÂºÄÂêØTTS");
+		SetSilent.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (SetSilent.getText().equals("ÂÖ≥Èó≠TTS")) {
+					// TTSÊí≠Êä•Â∑≤ÊâìÂºÄÁä∂ÊÄÅ
+					SetSilent.setText("ÂºÄÂêØTTS");
+					isTTSOpen = false;
+				} else {
+					// TTSÊí≠Êä•Â∑≤ÂÖ≥Èó≠Áä∂ÊÄÅ
+					SetSilent.setText("ÂÖ≥Èó≠TTS");
+					isTTSOpen = true;
+				}
+			}
+		});
+		SetSilent.setFont(new Font("ÂÆã‰Ωì", Font.PLAIN, 20));
 		GroupLayout gl_panel = new GroupLayout(panel);
-		gl_panel.setHorizontalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addGroup(gl_panel
-				.createSequentialGroup().addContainerGap()
-				.addGroup(gl_panel.createParallelGroup(Alignment.LEADING).addGroup(gl_panel.createSequentialGroup()
-						.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-								.addGroup(gl_panel.createSequentialGroup()
-										.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-												.addComponent(Absent, GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
-												.addComponent(Leave, GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
-												.addComponent(Present, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE,
-														138, Short.MAX_VALUE))
-										.addPreferredGap(ComponentPlacement.RELATED))
-								.addGroup(gl_panel.createSequentialGroup()
-										.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 303, Short.MAX_VALUE)
-										.addPreferredGap(ComponentPlacement.RELATED)
-										.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-												.addComponent(RemoveAbsent, GroupLayout.DEFAULT_SIZE, 138,
-														Short.MAX_VALUE)
-												.addComponent(RemoveLeave, GroupLayout.DEFAULT_SIZE, 138,
-														Short.MAX_VALUE)
-												.addComponent(SetAbsent, GroupLayout.DEFAULT_SIZE, 138, Short.MAX_VALUE)
-												.addComponent(SetLeave, GroupLayout.PREFERRED_SIZE, 138,
-														Short.MAX_VALUE))))
-						.addGap(0))
+		gl_panel.setHorizontalGroup(
+			gl_panel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
 						.addGroup(gl_panel.createSequentialGroup()
-								.addComponent(separator, GroupLayout.DEFAULT_SIZE, 435, Short.MAX_VALUE)
-								.addContainerGap()))));
-		gl_panel.setVerticalGroup(gl_panel.createParallelGroup(Alignment.LEADING).addGroup(gl_panel
-				.createSequentialGroup().addContainerGap()
-				.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
+							.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+								.addGroup(gl_panel.createSequentialGroup()
+									.addComponent(panel_1, GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+										.addComponent(Absent, GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+										.addComponent(Leave, GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+										.addComponent(Present, Alignment.TRAILING, GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE))
+									.addPreferredGap(ComponentPlacement.RELATED))
+								.addGroup(gl_panel.createSequentialGroup()
+									.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 307, Short.MAX_VALUE)
+									.addPreferredGap(ComponentPlacement.RELATED)
+									.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+										.addComponent(SetSilent, GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+										.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+											.addComponent(RemoveAbsent, GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+											.addComponent(RemoveLeave, GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+											.addComponent(SetAbsent, GroupLayout.DEFAULT_SIZE, 143, Short.MAX_VALUE)
+											.addComponent(SetLeave, GroupLayout.PREFERRED_SIZE, 143, Short.MAX_VALUE)))))
+							.addGap(0))
 						.addGroup(gl_panel.createSequentialGroup()
-								.addComponent(Present, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED)
-								.addComponent(Absent, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.RELATED).addComponent(Leave,
-										GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+							.addComponent(separator, GroupLayout.DEFAULT_SIZE, 444, Short.MAX_VALUE)
+							.addContainerGap())))
+		);
+		gl_panel.setVerticalGroup(
+			gl_panel.createParallelGroup(Alignment.LEADING)
+				.addGroup(gl_panel.createSequentialGroup()
+					.addContainerGap()
+					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING, false)
+						.addGroup(gl_panel.createSequentialGroup()
+							.addComponent(Present, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(Absent, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.RELATED)
+							.addComponent(Leave, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
 						.addComponent(panel_1, GroupLayout.PREFERRED_SIZE, 121, GroupLayout.PREFERRED_SIZE))
-				.addGap(18)
-				.addComponent(separator, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE,
-						GroupLayout.PREFERRED_SIZE)
-				.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
-						.addGroup(gl_panel.createSequentialGroup().addGap(48).addComponent(SetLeave).addGap(13)
-								.addComponent(SetAbsent, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-								.addGap(13)
-								.addComponent(RemoveLeave, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
-								.addPreferredGap(ComponentPlacement.UNRELATED)
-								.addComponent(RemoveAbsent, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
-						.addGroup(gl_panel.createSequentialGroup().addPreferredGap(ComponentPlacement.RELATED)
-								.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 241, Short.MAX_VALUE)))
-				.addContainerGap()));
+					.addGap(18)
+					.addComponent(separator, GroupLayout.PREFERRED_SIZE, GroupLayout.DEFAULT_SIZE, GroupLayout.PREFERRED_SIZE)
+					.addPreferredGap(ComponentPlacement.RELATED)
+					.addGroup(gl_panel.createParallelGroup(Alignment.LEADING)
+						.addGroup(gl_panel.createSequentialGroup()
+							.addComponent(SetSilent, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+							.addGap(13)
+							.addComponent(SetLeave)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(SetAbsent, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(RemoveLeave, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE)
+							.addPreferredGap(ComponentPlacement.UNRELATED)
+							.addComponent(RemoveAbsent, GroupLayout.PREFERRED_SIZE, 33, GroupLayout.PREFERRED_SIZE))
+						.addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 503, Short.MAX_VALUE))
+					.addContainerGap())
+		);
 
 		NamesTable = new JTable() {
 			/*
-			 * ÷ÿ–¥isCellEditable∑Ω∑®£¨…Ë÷√µ•‘™∏Ò≤ªø…±‡º≠
+			 * ÈáçÂÜôisCellEditableÊñπÊ≥ïÔºåËÆæÁΩÆÂçïÂÖÉÊ†º‰∏çÂèØÁºñËæë
 			 */
 			private static final long serialVersionUID = 1L;
 
@@ -291,18 +331,18 @@ public class GUI extends JFrame {
 			}
 		};
 		NamesTable.setRowHeight(40);
-		NamesTable.setFont(new Font("ÀŒÃÂ", Font.PLAIN, 35));
+		NamesTable.setFont(new Font("ÂÆã‰Ωì", Font.PLAIN, 35));
 		NamesTable.addMouseListener(new MouseAdapter() {
 			@Override
-			// ªÒ»°µ•‘™∏ÒŒª÷√
-			// ∏ƒ±‰±Í«©œ‘ æ√˚◊÷
+			// Ëé∑ÂèñÂçïÂÖÉÊ†º‰ΩçÁΩÆ
+			// ÊîπÂèòÊ†áÁ≠æÊòæÁ§∫ÂêçÂ≠ó
 			public void mouseClicked(MouseEvent e) {
 				selectedRow = NamesTable.getSelectedRow();
 				NameLabel.setText((String) NamesTable.getValueAt(selectedRow, 0));
 			}
 
 			@Override
-			//  Û±ÍÕœ◊ß Õ∑≈µƒ«Èøˆ
+			// Èº†Ê†áÊãñÊãΩÈáäÊîæÁöÑÊÉÖÂÜµ
 			public void mouseReleased(MouseEvent e) {
 				selectedRow = NamesTable.getSelectedRow();
 				NameLabel.setText((String) NamesTable.getValueAt(selectedRow, 0));
@@ -321,13 +361,15 @@ public class GUI extends JFrame {
 		NameLabel.addMouseListener(new MouseAdapter() {
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				if (NameLabel.getText() != "«Îø™ ºµ„√˚") {
-					TTSThread(NameLabel.getText());
+				if (NameLabel.getText() != "ËØ∑ÂºÄÂßãÁÇπÂêç") {
+					if (isTTSOpen) {
+						TTSThread(NameLabel.getText());
+					}
 				}
 			}
 		});
 		NameLabel.setHorizontalAlignment(SwingConstants.CENTER);
-		NameLabel.setFont(new Font("ÀŒÃÂ", Font.BOLD, 50));
+		NameLabel.setFont(new Font("ÂÆã‰Ωì", Font.BOLD, 50));
 		panel_1.add(NameLabel, BorderLayout.CENTER);
 		panel.setLayout(gl_panel);
 		contentPane.add(panel);
@@ -342,29 +384,31 @@ public class GUI extends JFrame {
 
 		Import.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// JFileChooser—°‘ÒExcelŒƒº˛
+				// JFileChooserÈÄâÊã©ExcelÊñá‰ª∂
 				JFileChooser chooser = new JFileChooser();
+				FileNameExtensionFilter fnef = new FileNameExtensionFilter("xlsÊñá‰ª∂", "xls");
+				chooser.setFileFilter(fnef);
 				int state = chooser.showOpenDialog(null);
 				if (state == JFileChooser.APPROVE_OPTION) {
 					String path = chooser.getSelectedFile().getAbsolutePath();
-					// ø™ ºµº»Î–≈œ¢
+					// ÂºÄÂßãÂØºÂÖ•‰ø°ÊÅØ
 					ImportData data = new ImportData(path);
 					String[][] names = data.process();
-					dtm = new DefaultTableModel(names, new String[] { "–’√˚", "≥ˆœØ«Èøˆ" });
+					dtm = new DefaultTableModel(names, new String[] { "ÂßìÂêç", "Âá∫Â∏≠ÊÉÖÂÜµ" });
 					NamesTable.setModel(dtm);
 					NameLabel.setText(names[0][0]);
-					// ø™∆Ùº«¬º∞¥≈•
+					// ÂºÄÂêØËÆ∞ÂΩïÊåâÈíÆ
 					Present.setEnabled(true);
 					Absent.setEnabled(true);
 					Leave.setEnabled(true);
-					// ø™∆Ù–ﬁ∏ƒº«¬º∞¥≈•
+					// ÂºÄÂêØ‰øÆÊîπËÆ∞ÂΩïÊåâÈíÆ
 					SetAbsent.setEnabled(true);
 					SetLeave.setEnabled(true);
 					RemoveAbsent.setEnabled(true);
 					RemoveLeave.setEnabled(true);
 
 				} else {
-					System.out.println("√ª”–—°÷–Œƒº˛");
+					System.out.println("Ê≤°ÊúâÈÄâ‰∏≠Êñá‰ª∂");
 				}
 			}
 		});
@@ -372,23 +416,80 @@ public class GUI extends JFrame {
 
 		JMenuItem Exit = new JMenuItem("\u9000\u51FA");
 		Exit.addActionListener(new ActionListener() {
-			//ÕÀ≥ˆ
+			// ÈÄÄÂá∫
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
 			}
 		});
+
+		Export = new JMenuItem("ÂØºÂá∫");
+		Export.addActionListener(new ActionListener() {
+			// ÂØºÂá∫ÂêçÂçï‰∏∫excelÊñá‰ª∂
+			public void actionPerformed(ActionEvent e) {
+				if (NameLabel.getText().equals("ËØ∑ÂºÄÂßãÁÇπÂêç") == false) {
+
+					JFileChooser chooser = new JFileChooser() {
+						/**
+						 * 
+						 */
+						private static final long serialVersionUID = -2471087207278717648L;
+
+						public void approveSelection() {
+							File f = new File(this.getSelectedFile().getAbsolutePath());
+							if (f.exists()) {
+								int i = JOptionPane.showConfirmDialog(GUI.this, "ËØ•Êñá‰ª∂Â∑≤ÁªèÂ≠òÂú®ÔºåÁ°ÆÂÆöË¶ÅË¶ÜÁõñÂêóÔºü", "ÊèêÁ§∫", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE);
+								if (!(i == JOptionPane.YES_OPTION)) {
+									return;
+								}
+							}
+							super.approveSelection();
+						}
+					};
+					FileNameExtensionFilter fnef = new FileNameExtensionFilter("xlsÊñá‰ª∂", "xls");
+					chooser.setFileFilter(fnef);
+					int state = chooser.showSaveDialog(GUI.this);
+					
+					if (state == JFileChooser.APPROVE_OPTION) {
+
+						String savePath = chooser.getSelectedFile().getAbsolutePath();
+
+						if (!savePath.endsWith("xls")) {
+							savePath = savePath + ".xls";
+						}
+						System.out.println("ËæìÂá∫Ë∑ØÂæÑÔºö" + savePath);
+						
+						ArrayList<String> name = new ArrayList<>();
+						ArrayList<String> status = new ArrayList<>();
+
+						for (int i = 0; i < NamesTable.getRowCount(); i++) {
+							name.add((String) NamesTable.getValueAt(i, 0));
+							status.add((String) NamesTable.getValueAt(i, 1));
+						}
+						ExportData ed = new ExportData(name, status);
+						
+						ed.toExcel(savePath);
+					}
+				} else {
+					JOptionPane.showMessageDialog(GUI.this, "ËØ∑ÂÖàÂØºÂÖ•Â≠¶ÁîüÂêçÂçï\nÁôªËÆ∞ÂÆåÂá∫Â∏≠ÊÉÖÂÜµÂêéÊâçËÉΩÂØºÂá∫", "ÊèêÁ§∫", JOptionPane.WARNING_MESSAGE);
+					System.out.println("Êú™ÂØºÂÖ•Â≠¶ÁîüÂêçÂçï");
+				}
+			}
+		});
+		mnNewMenu.add(Export);
 		mnNewMenu.add(Exit);
 	}
+
 	private void TTSThread(String nextName) {
-		String ntn =nextName;
+		String ntn = nextName;
 		new SwingWorkerTTS(ntn) {
-			
+
 			@Override
 			protected Void doInBackground() throws Exception {
 				tts.speak(this.text);
 				return null;
 			}
-			
-		}.execute();;
+
+		}.execute();
+		;
 	}
 }

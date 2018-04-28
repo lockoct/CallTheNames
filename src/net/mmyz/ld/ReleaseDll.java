@@ -6,9 +6,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 
-/*
- *释放TTS所需要调用的dll文件 
- */
 public class ReleaseDll {
 	
 	public static void start() {

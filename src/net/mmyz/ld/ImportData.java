@@ -8,7 +8,7 @@ import jxl.Sheet;
 import jxl.Workbook;
 import jxl.read.biff.BiffException;
 /*
- *´¦ÀíExcel±í¸ñ
+ *å¤„ç†Excelè¡¨æ ¼
  */
 public class ImportData {
 	String path;
@@ -22,15 +22,15 @@ public class ImportData {
 		try {
 			FileInputStream fis = new FileInputStream(this.path);
 
-			// »ñÈ¡ExcelÖĞµÄÊı¾İ
+			// è·å–Excelä¸­çš„æ•°æ®
 			Workbook workBook = Workbook.getWorkbook(fis);
 			Sheet sheet = workBook.getSheet(0);
 
 			this.names = new String[sheet.getRows()][2];
-			// ¿ªÊ¼µ¼ÈëĞÅÏ¢
+			// å¼€å§‹å¯¼å…¥ä¿¡æ¯
 			for (int i = 0; i < 2; i++) {
 				for (int j = 0; j < sheet.getRows(); j++) {
-					// ½«µ¥Ôª¸ñÊı¾İÊäÈëÊı×éÖĞ
+					// å°†å•å…ƒæ ¼æ•°æ®è¾“å…¥æ•°ç»„ä¸­
 					names[j][i] = sheet.getCell(i, j).getContents();
 				}
 			}

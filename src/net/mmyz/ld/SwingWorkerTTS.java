@@ -2,7 +2,7 @@ package net.mmyz.ld;
 
 import javax.swing.SwingWorker;
 /*
- * ¼Ì³ĞSwingWorkerÀà£¬¿ÉÒÔ°ÑTTSÀÊ¶ÁÎÄ±¾´«½øÀ´
+ * ç»§æ‰¿SwingWorkerç±»ï¼Œå¯ä»¥æŠŠTTSæœ—è¯»æ–‡æœ¬ä¼ è¿›æ¥
  */
 public class SwingWorkerTTS extends SwingWorker<Void, Void> {
 	public String text;
